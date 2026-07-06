@@ -65,7 +65,7 @@ function App(): JSX.Element {
 
   const closeAndSetQuery = (): void => {
     setIsClosedByUser(true);
-    setQuery("Batman");
+    setQuery("Avatar");
   };
 
   const handleSelectedId = (id: string): void => {
