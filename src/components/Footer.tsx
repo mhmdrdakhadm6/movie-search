@@ -11,7 +11,7 @@ import {
   FiInstagram,
   FiYoutube
 } from "react-icons/fi";
-import type { Movie } from "./api/movieApi";
+import type { Movie } from "../types/movie";
 
 interface IFooter {
   movie: Movie[]

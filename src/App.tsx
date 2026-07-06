@@ -83,15 +83,8 @@ function App(): JSX.Element {
     }
 
     // Create a Movie object from DetailMovie
-    const movieToAdd: Movie = {
-      Title: movie.Title,
-      Year: movie.Year,
-      imdbID: movie.imdbID,
-      Type: movie.Type || "movie",
-      Poster: movie.Poster,
-    };
 
-    setWatchList((prev) => [movieToAdd, ...prev]);
+    setWatchList((prev) => [movie, ...prev]);
   };
 
   const removeToWatchList = (id: string): void => {
