@@ -10,7 +10,6 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import WatchlistModal from "./components/WatchlistModal";
 import DetailMovie from "./components/DetailMovie";
 import toast, { Toaster } from "react-hot-toast";
-// import Footer from "./components/Footer";
 
 function App(): JSX.Element {
   const [searchMovie, setSearchMovie] = useState<string>("");
@@ -73,7 +72,6 @@ function App(): JSX.Element {
   };
 
   const handleAddToWatchList = (movie: Movie): void => {
-    // Check if movie already exists in watchlist
     const exists = watchList.some((item) => item.imdbID === movie.imdbID);
     if (exists) {
       toast.error("This movie is already in your watchlist!");
@@ -81,8 +79,6 @@ function App(): JSX.Element {
     } else {
       toast.success("Add to watch list!");
     }
-
-    // Create a Movie object from DetailMovie
 
     setWatchList((prev) => [movie, ...prev]);
   };
@@ -101,6 +97,7 @@ function App(): JSX.Element {
         recent={recentSearch}
         movie={movies}
         searchMovie={searchMovie}
+        setQuery={setQuery}
         setSearchMovie={setSearchMovie}
         onSearch={onSubmitSearch}
         showWatchList={() => setIswatch(true)}
@@ -125,16 +122,13 @@ function App(): JSX.Element {
         onClose={() => setIswatch(false)}
         onAdd={() => {
           setIswatch(false);
-          // Optional: focus on search input
         }}
       />
-      {/* <Footer movie={movies} /> */}
       <Toaster
         position="top-center"
         reverseOrder={false}
         gutter={8}
         toastOptions={{
-          // استایل‌های پایه برای تم تاریک مدرن و افکت شیشه‌ای
           style: {
             background: "rgba(23, 23, 23, 0.85)",
             backdropFilter: "blur(12px)",
@@ -148,29 +142,27 @@ function App(): JSX.Element {
             boxShadow: "0 10px 30px -10px rgba(0, 0, 0, 0.5)",
             maxWidth: "420px",
           },
-          // شخصی‌سازی جداگانه بر اساس نوع توست
           success: {
             iconTheme: {
-              primary: "#10B981", // سبز زمردی مدرن
+              primary: "#10B981",
               secondary: "#171717",
             },
             style: {
-              borderLeft: "4px solid #10B981", // خط تاکید سمت چپ برای جلوه بیشتر
+              borderLeft: "4px solid #10B981",
             },
           },
           error: {
             iconTheme: {
-              primary: "#EF4444", // قرمز مرجانی
+              primary: "#EF4444",
               secondary: "#171717",
             },
             style: {
               borderLeft: "4px solid #EF4444",
             },
           },
-          // تنظیم مدت زمان نمایش توست به صورت بهینه
           duration: 4000,
         }}
-      />{" "}
+      />
     </div>
   );
 }
