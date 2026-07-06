@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
-    babel({ presets: [reactCompilerPreset()] })
+    babel({ presets: [reactCompilerPreset()] }),
   ],
+  base: '/movie-search/',
 })
