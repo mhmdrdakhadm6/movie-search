@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiX, FiPlus, FiTrash2, FiFilm } from "react-icons/fi";
+import { FiX, FiPlus, FiTrash2, FiFilm, FiCheck } from "react-icons/fi";
 import type { Movie } from "../types/movie";
 
 interface WatchlistModalProps {
@@ -19,8 +19,23 @@ function WatchlistModal({
 }: WatchlistModalProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // ذخیره لیست فیلم‌های تماشا شده در LocalStorage
+  const [watchedIds, setWatchedIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("watched_movies");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
-  // Animation effect
+  // سینک کردن لوکال استوریج با تغییر استیت
+  useEffect(() => {
+    localStorage.setItem("watched_movies", JSON.stringify(watchedIds));
+  }, [watchedIds]);
+
+  // انیمیشن باز و بسته شدن مودال
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
@@ -35,6 +50,12 @@ function WatchlistModal({
   }, [isOpen]);
 
   if (!isOpen && !isVisible) return null;
+
+  const toggleWatched = (id: string) => {
+    setWatchedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
 
   const filteredWatchlist = watchlist.filter((movie) =>
     movie.Title.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -170,64 +191,81 @@ function WatchlistModal({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {filteredWatchlist.map((movie) => (
-                <div
-                  key={movie.imdbID}
-                  className="
-                    group relative
-                    p-3
-                    bg-white/5 hover:bg-white/10
-                    border border-white/5 hover:border-orange-500/30
-                    rounded-2xl
-                    transition-all duration-200
-                    flex gap-3
-                  "
-                >
-                  {/* Poster */}
-                  <img
-                    src={movie.Poster}
-                    alt={movie.Title}
-                    className="
-                      w-16 h-24 rounded-lg object-cover shrink-0
-                      shadow-lg
-                    "
-                  />
+              {filteredWatchlist.map((movie) => {
+                const isWatched = watchedIds.includes(movie.imdbID);
+                return (
+                  <div
+                    key={movie.imdbID}
+                    className={`
+                      group relative
+                      p-3
+                      bg-white/5 hover:bg-white/10
+                      border border-white/5 hover:border-orange-500/30
+                      rounded-2xl
+                      transition-all duration-300
+                      flex gap-3
+                      ${isWatched ? "opacity-40 grayscale-[50%]" : ""}
+                    `}
+                  >
+                    {/* Poster */}
+                    <img
+                      src={movie.Poster}
+                      alt={movie.Title}
+                      className="
+                        w-16 h-24 rounded-lg object-cover shrink-0
+                        shadow-lg
+                      "
+                    />
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                    <div>
-                      <h3 className="text-sm font-semibold text-white truncate">
-                        {movie.Title}
-                      </h3>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                      <div>
+                        <h3 className={`text-sm font-semibold text-white truncate ${isWatched ? "line-through text-gray-500" : ""}`}>
+                          {movie.Title}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-gray-400">
+                            {movie.Year}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* دکمه علامت‌گذاری به عنوان تماشا شده */}
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-400">
-                          {movie.Year}
-                        </span>
+                        <button
+                          onClick={() => toggleWatched(movie.imdbID)}
+                          className={`
+                            flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] md:text-xs font-medium transition-all duration-200
+                            ${isWatched 
+                              ? "bg-green-500/20 text-green-400 border border-green-500/30" 
+                              : "bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10 hover:text-white"
+                            }
+                          `}
+                        >
+                          <FiCheck className={`w-3.5 h-3.5 ${isWatched ? "stroke-[3px]" : ""}`} />
+                          {isWatched ? "Watched" : "Mark watched"}
+                        </button>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-1"></div>
+                    {/* Remove Button */}
+                    <button
+                      onClick={() => onRemove(movie.imdbID)}
+                      className="
+                        absolute top-2 right-2
+                        opacity-100 sm:opacity-0 sm:group-hover:opacity-100
+                        transition-all duration-200
+                        p-2 sm:p-1.5 rounded-lg
+                        bg-red-500/20 hover:bg-red-500/40
+                        text-red-400 hover:text-red-300
+                        active:scale-90
+                      "
+                    >
+                      <FiTrash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                    </button>
                   </div>
-
-                  {/* Remove Button */}
-                  <button
-                    onClick={() => onRemove(movie.imdbID)}
-                    className="
-    absolute top-2 right-2
-    /* در موبایل همیشه نمایان است و در دسکتاپ فقط زمان هاور گروهی */
-    opacity-100 sm:opacity-0 sm:group-hover:opacity-100
-    transition-all duration-200
-    p-2 sm:p-1.5 rounded-lg
-    bg-red-500/20 hover:bg-red-500/40
-    text-red-400 hover:text-red-300
-    /* افزایش اندازه لمس در موبایل برای تجربه کاربری بهتر */
-    active:scale-90
-  "
-                  >
-                    <FiTrash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
