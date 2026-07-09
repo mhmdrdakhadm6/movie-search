@@ -57,6 +57,7 @@ function Header({
           // جلوگیری از ثبت آیتم‌های تکراری متوالی
           if (prev.length > 0 && prev[0].search === cleanText) return prev;
           return [newTxt, ...prev];
+          setIsOpenRecent(false)
         });
       },
       lang: "en-US",
