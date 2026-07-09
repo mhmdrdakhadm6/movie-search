@@ -1,14 +1,32 @@
 import { useVoiceSearch } from "../hooks/useVoiceSearch";
+import type { Recent } from "../types/movie";
 
 interface SearchProps {
   query: string;
   setQuery: (value: string) => void;
+  setRecentSearch: React.Dispatch<React.SetStateAction<Recent[]>>;
 }
 
-function Search({ query, setQuery }: SearchProps) {
+function Search({ query, setQuery, setRecentSearch }: SearchProps) {
   const { isListening, isSupported, startListening, stopListening } =
     useVoiceSearch({
-      onResult: (text) => setQuery(text),
+      onResult: (text) => {
+        const cleanText = text.trim();
+        if (!cleanText) return; // جلوگیری از ثبت متن خالی
+
+        setQuery(cleanText);
+
+        const newTxt: Recent = {
+          search: cleanText,
+          id: crypto.randomUUID(),
+        };
+
+        setRecentSearch((prev) => {
+          // جلوگیری از ثبت آیتم‌های تکراری متوالی
+          if (prev.length > 0 && prev[0].search === cleanText) return prev;
+          return [newTxt, ...prev];
+        });
+      },
       lang: "en-US", // چون اسم فیلم‌ها معمولاً انگلیسی‌اند
     });
 

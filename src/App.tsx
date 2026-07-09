@@ -13,7 +13,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 function App(): JSX.Element {
   const [searchMovie, setSearchMovie] = useState<string>("");
-  const [query, setQuery] = useState<string>("Avatar");
+  const [query, setQuery] = useLocalStorage("query", "Avatar");
   const [recentSearch, setRecentSearch] = useLocalStorage<Recent[]>(
     "recent",
     [],
@@ -77,7 +77,7 @@ function App(): JSX.Element {
       toast.error("This movie is already in your watchlist!");
       return;
     } else {
-      toast.success("Add to watch list!");
+      // toast.success("Add to watch list!");
     }
 
     setWatchList((prev) => [movie, ...prev]);
@@ -90,6 +90,8 @@ function App(): JSX.Element {
   return (
     <div className="h-screen bg-[#0A0A0A] text-white flex flex-col">
       <Header
+        setRecentSearch={setRecentSearch}
+        setIsOpenRecent={setIsRecentSearch}
         onDelete={handlelRemove}
         onRecentSearch={handleRecentSearch}
         isOpenRecent={isRecentSearch}

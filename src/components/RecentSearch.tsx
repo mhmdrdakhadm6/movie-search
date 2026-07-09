@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { Recent } from "../types/movie";
 import RecentSearchItem from "./RecentSearchItem";
 
@@ -6,9 +7,34 @@ interface IRecent {
   onDelete: (id: string) => void;
   isOpenRecent: boolean;
   onSearch: (id: string) => void;
+  setIsOpenRecent: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function RecentSearch({ recent , onSearch , onDelete , isOpenRecent }: IRecent) {
+function RecentSearch({
+  recent,
+  onSearch,
+  onDelete,
+  isOpenRecent,
+  setIsOpenRecent,
+}: IRecent) {
+  const hadleCloseRecentSearch = (): void => {
+    setIsOpenRecent(false);
+  };
+
+  useEffect(() => {
+    if (!isOpenRecent) return;
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      if (e.code === "Escape") {
+        hadleCloseRecentSearch();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [hadleCloseRecentSearch , isOpenRecent]);
+
   if (!isOpenRecent || recent.length === 0) return null;
   return (
     <div
@@ -46,7 +72,12 @@ function RecentSearch({ recent , onSearch , onDelete , isOpenRecent }: IRecent) 
         "
       >
         {recent.map((item) => (
-          <RecentSearchItem onDelete={onDelete} onSearch={onSearch} key={item.id} recent={item} />
+          <RecentSearchItem
+            onDelete={onDelete}
+            onSearch={onSearch}
+            key={item.id}
+            recent={item}
+          />
         ))}
       </ul>
     </div>

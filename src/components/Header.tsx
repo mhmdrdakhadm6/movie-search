@@ -16,6 +16,8 @@ type HeaderProps = {
   showRecent: () => void;
   onDelete: (id: string) => void;
   onRecentSearch: (id: string) => void;
+  setIsOpenRecent: React.Dispatch<React.SetStateAction<boolean>>
+  setRecentSearch: React.Dispatch<React.SetStateAction<Recent[]>>;
   showWatchList: () => void;
 };
 
@@ -30,16 +32,32 @@ function Header({
   onRecentSearch,
   onDelete,
   showWatchList,
-  setSearchMovie
+  setSearchMovie,
+  setRecentSearch,
+  setIsOpenRecent
 }: HeaderProps): JSX.Element {
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // تنظیمات جستجوی صوتی
-  const { isListening, isSupported, startListening, stopListening } =
+  const { isListening, isSupported, startListening, stopListening  } =
     useVoiceSearch({
       onResult: (text) => {
-        setSearchMovie(text); // پر کردن فیلد ورودی
-        setQuery(text);       // اعمال مستقیم کوئری برای جستجوی فوری
+        const cleanText = text.trim();
+        if (!cleanText) return; // جلوگیری از ثبت متن خالی
+
+        setQuery(cleanText);
+        setSearchMovie(text)
+
+        const newTxt: Recent = {
+          search: cleanText,
+          id: crypto.randomUUID(),
+        };
+
+        setRecentSearch((prev) => {
+          // جلوگیری از ثبت آیتم‌های تکراری متوالی
+          if (prev.length > 0 && prev[0].search === cleanText) return prev;
+          return [newTxt, ...prev];
+        });
       },
       lang: "en-US",
     });
@@ -126,6 +144,7 @@ function Header({
 
             <div className="absolute top-full left-0 w-full mt-2 z-50">
               <RecentSearch
+                setIsOpenRecent={setIsOpenRecent}
                 isOpenRecent={isOpenRecent}
                 onDelete={onDelete}
                 onSearch={onRecentSearch}
