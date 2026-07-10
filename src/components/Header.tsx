@@ -37,6 +37,7 @@ function Header({
   setIsOpenRecent
 }: HeaderProps): JSX.Element {
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement | null >(null)
 
   // تنظیمات جستجوی صوتی
   const { isListening, isSupported, startListening, stopListening  } =
@@ -90,6 +91,21 @@ function Header({
     };
   }, [isOpenRecent, showRecent]);
 
+  useEffect(() => {
+    const callback = (e: KeyboardEvent): void => {
+      if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        inputRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('keydown' , callback)
+
+    return () => {
+      document.removeEventListener('keydown' , callback)
+    }
+  } , [])
+
   return (
     <header className="w-full sticky top-0 z-50 border-b border-white/10 bg-black/60 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between gap-3 md:gap-6">
@@ -109,6 +125,7 @@ function Header({
             <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base md:text-lg group-focus-within:text-white transition-colors duration-300" />
 
             <input
+            ref={inputRef}
               onClick={showRecent}
               onKeyDown={onKeyDown}
               value={searchMovie}

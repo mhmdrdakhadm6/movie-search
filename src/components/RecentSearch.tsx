@@ -33,7 +33,7 @@ function RecentSearch({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [hadleCloseRecentSearch , isOpenRecent]);
+  }, [hadleCloseRecentSearch, isOpenRecent]);
 
   if (!isOpenRecent || recent.length === 0) return null;
   return (

@@ -18,7 +18,7 @@ function App(): JSX.Element {
     "recent",
     [],
   );
-  const [selectedId, setSelectedId] = useState<null | string>(null);
+  const [selectedId, setSelectedId] = useLocalStorage<string | null>('selectedId' , null);
   const [watchList, setWatchList] = useLocalStorage<Movie[]>("watchlist", []);
   const [isRecentSearch, setIsRecentSearch] = useState<boolean>(false);
   const [isClosedByUser, setIsClosedByUser] = useState<boolean>(false);
@@ -47,12 +47,17 @@ function App(): JSX.Element {
   };
 
   const handleRecentSearch = (id: string): void => {
-    const onSearch = recentSearch.find((recent) => recent.id === id);
-    if (onSearch) {
-      setQuery(onSearch.search);
-      setIsRecentSearch(false);
-      setIsClosedByUser(false);
+    const selectedRecent = recentSearch.find((recent) => recent.id === id);
+    if (!selectedRecent) return;
+
+    if (selectedRecent.search === query) {
+      toast.error("This term is already in query!");
+      return;
     }
+
+    setQuery(selectedRecent.search);
+    setIsRecentSearch(false);
+    setIsClosedByUser(false);
   };
 
   const handlelRemove = (id: string): void => {
@@ -77,7 +82,7 @@ function App(): JSX.Element {
       toast.error("This movie is already in your watchlist!");
       return;
     } else {
-      // toast.success("Add to watch list!");
+      toast.success("Add to watch list!");
     }
 
     setWatchList((prev) => [movie, ...prev]);
